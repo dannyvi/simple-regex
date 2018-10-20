@@ -6,8 +6,8 @@ import string
 import queue
 
 grammar_literal = ('R -> S',
-                   'S -> S|S',
                    'S -> S*',
+                   'S -> S|S',
                    'S -> SS',
                    'S -> (S)',
                    'S -> a')
@@ -15,6 +15,13 @@ grammar_literal = ('R -> S',
 terminals = ("(", ")", "|", "*", "a", "$")
 n_terminals = ("S", "R")
 all_symbols = terminals + n_terminals
+
+semantic = ('''Machine({})''',
+            '''induct_star({})''',
+            '''induct_or({}, {})''',
+            '''induct_cat({}, {})''',
+            '''{}''',
+            '''basis("{}")''')
 
 
 def _divide(product):
@@ -181,30 +188,33 @@ def get_closure(cl: Closure, label: int) -> Closure:
 
     The implied Items are the productions of the None terminals after the
     current position, which put a dot on the head."""
+    def get_nterm(item):
+        pos, prod = (item.pos, item.body)
+        if pos < len(prod):
+            symbol = prod[pos]
+            if isnterm(symbol):
+                return symbol
+        return None
     item_set = set()
+    q = queue.Queue()
     for i in cl.sets:
         item_set.add(i)
-    increased = True
-    while increased:
-        start_len = len(item_set)
-        for item in tuple(item_set):
-            pos, prod = (item.pos, item.body)
-            if pos < len(prod):
-                symbol = prod[pos]
-                # get none terminal symbol in the item
-                if isnterm(symbol):
-                    products = [i for i in grammar if i[0] == symbol]
-                    suffix = prod[pos + 1:] + item.follow
-                    termins = firsts(suffix)
-                    for product in products:
-                        for terminal in termins:
-                            new_item = Item(symbol, product[1], 0, terminal)
-                            item_set.add(new_item)
-        if start_len == len(item_set):
-            increased = False
+        q.put(i)
+    while not q.empty():
+        item = q.get()
+        symbol = get_nterm(item)
+        if symbol:
+            products = [i for i in grammar if i[0] == symbol]
+            suffix = item.body[item.pos+1:] + item.follow
+            termins = firsts(suffix)
+            for product in products:
+                for terminal in termins:
+                    new_item = Item(symbol, product[1], 0, terminal)
+                    if new_item not in item_set:
+                        item_set.add(new_item)
+                        q.put(new_item)
     c = Closure(item_set, label)
     return c
-
 
 def goto(clos: Closure, letter: str) -> Closure:
     """a closure that could get from the current closure by input a letter.
@@ -226,46 +236,6 @@ def goto(clos: Closure, letter: str) -> Closure:
     return get_closure(c, label=None)
 
 
-#def find_label(closure, group1, group2):
-#    for i in group1:
-#        if closure == i:
-#            return i.label
-#    for i in group2:
-#        if closure == i:
-#            return i.label
-#    return None
-#
-#
-#def closure_groups_():
-#    group = set()
-#    label = 0
-#    start = get_closure(Closure({Item('R', 'S', 0, '$')}), label)
-#    group.add(start)
-#    start_len = len(group)
-#    increase = True
-#    while increase:
-#        g = set()
-#        for clos in group:
-#            for input in terminals + n_terminals:
-#                go_clos = goto(clos, input)
-#                if go_clos:
-#                    if go_clos not in g and go_clos not in group:
-#                        label += 1
-#                        go_clos.label = label
-#                        g.add(go_clos)
-#                        clos.goto[input] = go_clos.label
-#                    else:
-#                        go_label = find_label(go_clos, group, g)
-#                        if go_label:
-#                            clos.goto[input] = go_label
-#        group = group.union(g)
-#        if len(group) == start_len:
-#            increase = False
-#        else:
-#            start_len = len(group)
-#    return group
-
-
 def find_label(closure, group):
     for i in group:
         if closure == i:
@@ -282,7 +252,7 @@ def closure_groups():
     group.add(start)
     while not q.empty():
         c = q.get()
-        for literal in terminals + n_terminals:
+        for literal in all_symbols: # terminals + n_terminals:
             go_clos = goto(c, literal)
             if go_clos:
                 if go_clos not in group:
@@ -321,8 +291,11 @@ def get_states_map(closure_group):
                         item.follow == input and \
                         item.symbol != 'R':
                         # 'R' should be replaced with start_symbol
+                    #if item.follow != '*':
                     production_num = grammar.index([item.symbol, item.body])
                     row[row_pos] = 'r' + str(production_num)
+                    #else:
+                    #    pass
         # accept condition 'R -> S. , $'
         acc_item = Item('R', 'S', 1, '$')
         if acc_item in closure:
@@ -337,17 +310,10 @@ def get_states_map(closure_group):
         state_map[closure.label] = row
     return state_map
 
-
-def select_closure(label, group):
-    """select closure from closure group by label.
-
-    :param label: closure label # type: int
-    :param group: closure set   # type: set<Closure>
-    """
-    for i in group:
-        if i.label == label:
-            return i
-
+def generate_syntax_table():
+    g = closure_groups()
+    state_map = get_states_map(g)
+    return state_map
 
 if __name__ == "__main__":
     g = closure_groups()

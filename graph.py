@@ -28,6 +28,10 @@ def is_epsilon(label):
     return label == epsilon
 
 
+class NotMatchException(Exception):
+    pass
+
+
 class State(object):
     """A container that includes the state name."""
 
@@ -241,7 +245,10 @@ class Machine(Graph):
 
     def step_by(self, letter):
         """Goto next state closure by input letter."""
-        self.current = self.e_closure(set([path.end for path in self.paths
-                                          if path.begin in self.current and
-                                           path.label == letter]))
+        try:
+            self.current = self.e_closure(set([path.end for path in self.paths
+                                              if path.begin in self.current and
+                                               path.label == letter]))
+        except TypeError:
+            raise NotMatchException("""does not match this letter "{}".""".format(letter))
 

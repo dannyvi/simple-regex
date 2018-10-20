@@ -1,10 +1,5 @@
 """define basis and induction rules of the nfa graph construction."""
 
-# from parsing_table import closure_groups, select_closure, get_states_map
-# closure_group = closure_groups()
-# action_map = get_states_map(closure_group)
-# start_closure = select_closure(0, closure_group)
-
 
 from graph import State, Path, Graph, Machine, epsilon, is_epsilon
 
@@ -168,11 +163,6 @@ def build_a_machine():
     g11 = induct_cat(g6, g10)
     m = Machine(g11)
     e = m.current
-    #print(e)
-    #m.step_by("a")
-    #m.step_by("c")
-    #m.show()
-    #print(m.is_finished())
     return m
 
 
