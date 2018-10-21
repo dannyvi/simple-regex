@@ -1,13 +1,14 @@
-"""compile a regex pattern to an nfa machine.
+"""regex_compile a regex pattern to an nfa machine.
 
 """
 
+import re
 import string
 
-from parsing_table import (semantic, all_symbols, grammar,
-                           generate_syntax_table)
-from graph import Machine
-from regex_nfa import induct_cat, induct_or, induct_star, basis
+from .parsing_table import (semantic, all_symbols, grammar,
+                                  generate_syntax_table)
+from .graph import Machine
+from .regex_nfa import induct_star, induct_or, induct_cat, basis
 
 
 class Lexer:
@@ -34,7 +35,7 @@ class RegexCompiler:
         # self.current_state = 0
         self.state_stack = [0]
         self.arg_stack = []
-        self.machin_lit = ""
+        self.literal_machine = ""
 
     def parse(self, stream):
         stream = stream + '$'
@@ -54,7 +55,7 @@ class RegexCompiler:
                 self.arg_stack.append(value)
         elif action[0] == '$':
             machine_literal = self.arg_stack.pop()
-            self.machin_lit = machine_literal
+            self.literal_machine = machine_literal
             # success
         elif action[0] == 'r':
             number = int(action[1:])
@@ -65,23 +66,30 @@ class RegexCompiler:
                 self.state_stack.pop()
             state = self.get_action(self.state_stack[-1], head)
             self.state_stack.append(int(state))
-            if number == 2 or number == 3:
-                i2 = self.arg_stack.pop()
-                i1 = self.arg_stack.pop()
-                translation = semantic[number].format(i1, i2)
-                self.arg_stack.append(translation)
-            else:
-                i = self.arg_stack.pop()
-                translation = semantic[number].format(i)
-                self.arg_stack.append(translation)
+            args = []
+            for i in re.findall(r"{}", semantic[number]):
+                arg = self.arg_stack.pop()
+                args.insert(0, arg)
+            translation = semantic[number].format(*args)
+            self.arg_stack.append(translation)
             self.ahead(literal, value)
 
 
+def regex_compile(regex):
+    a = RegexCompiler()
+    a.parse(regex)
+    m = eval(a.literal_machine)
+    # print(a.literal_machine)
+    m.sort_state_names()
+    # m.show()
+    return Machine(m)
 
 if __name__ == "__main__":
-    a = RegexCompiler()
-    a.parse("abc*d(e|f)k")
-    print(a.machin_lit)
-    m = eval(a.machin_lit)
-    m.sort_state_names()
-    m.show()
+    a = regex_compile("abc*d(e|f)ka*z")
+    a.show()
+#    a = RegexCompiler()
+#    a.parse("abc*d(e|f)k")
+#    print(a.literal_machine)
+#    m = eval(a.literal_machine)
+#    m.sort_state_names()
+#    m.show()

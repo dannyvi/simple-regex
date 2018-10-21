@@ -1,7 +1,7 @@
 """define basis and induction rules of the nfa graph construction."""
 
 
-from graph import State, Path, Graph, Machine, epsilon, is_epsilon
+from .graph import State, Path, Graph, Machine, epsilon
 
 
 def basis(letter, names=(None, None)):

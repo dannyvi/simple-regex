@@ -5,21 +5,32 @@ from typing import Set
 import string
 import queue
 
+# grammar_literal = ('R -> S',
+#                   'S -> S*',
+#                   'S -> S|S',
+#                   'S -> SS',
+#                   'S -> (S)',
+#                   'S -> a')
+
 grammar_literal = ('R -> S',
-                   'S -> S*',
-                   'S -> S|S',
-                   'S -> SS',
-                   'S -> (S)',
-                   'S -> a')
+                   'S -> S|D',
+                   'S -> SD',
+                   'S -> D',
+                   'D -> K*',
+                   'D -> K',
+                   'K -> (S)',
+                   'K -> a')
 
 terminals = ("(", ")", "|", "*", "a", "$")
-n_terminals = ("S", "R")
+n_terminals = ("S", "R", "D", "K")
 all_symbols = terminals + n_terminals
 
 semantic = ('''Machine({})''',
-            '''induct_star({})''',
             '''induct_or({}, {})''',
             '''induct_cat({}, {})''',
+            '''{}''',
+            '''induct_star({})''',
+            '''{}''',
             '''{}''',
             '''basis("{}")''')
 
@@ -88,7 +99,7 @@ def follow(symbol):
     follow_sets = set()
     if is_start_symbol(symbol):
         follow_sets = follow_sets.union("$")
-    products = [i for i in grammar if 'S' in i[1]]
+    products = grammar[1:]    #  [i for i in grammar if 'S' in i[1]]
     # 'S' means all nterms except augmented start symbol 'R'
 
     for head, body in products:
@@ -216,6 +227,7 @@ def get_closure(cl: Closure, label: int) -> Closure:
     c = Closure(item_set, label)
     return c
 
+
 def goto(clos: Closure, letter: str) -> Closure:
     """a closure that could get from the current closure by input a letter.
 
@@ -310,10 +322,12 @@ def get_states_map(closure_group):
         state_map[closure.label] = row
     return state_map
 
+
 def generate_syntax_table():
     g = closure_groups()
     state_map = get_states_map(g)
     return state_map
+
 
 if __name__ == "__main__":
     g = closure_groups()
@@ -323,7 +337,8 @@ if __name__ == "__main__":
             print("State: {}, Input: {}, Target: {}".format(i.label, input, target))
     state_map = get_states_map(g)
     print(state_map)
-    s = "{:10s}{:5s}{:5s}{:5s}{:5s}{:5s}{:5s}{:5s}{:5s}"
+    args = ''.join(list(map(lambda x: '{:5s}', all_symbols)))
+    s = "{:10s}" + args
     head = ['state', ] + list(all_symbols)
     print(s.format(*head))
     for n, i in enumerate(state_map):

@@ -126,14 +126,14 @@ class Graph:
         return digraph
 
     def _compile_digraph(self):
-        """write dot file, compile with graphviz dot and make a png picture."""
+        """write dot file, regex_compile with graphviz dot and make a png picture."""
         # dot file
         digraph = self.get_dot_content()
         filename = ''.join(random.choices(string.ascii_uppercase +
                                           string.digits, k=6))
         with open('/tmp/' + filename + '.dot', 'w', encoding='utf-8') as f:
             f.writelines(["%s\n" % line for line in digraph])
-        # compile to png
+        # regex_compile to png
         output = "/tmp/" + filename + ".png"
         dot_file = "/tmp/" + filename + ".dot"
         subprocess.call(["dot", "-Tpng", "-o", output, dot_file])
@@ -252,3 +252,16 @@ class Machine(Graph):
         except TypeError:
             raise NotMatchException("""does not match this letter "{}".""".format(letter))
 
+    def match(self, stream):
+        try:
+            for letter in stream:
+                self.step_by(letter)
+            if self.finish in self.current:
+                self.current = self.e_closure({self.start, })
+                return True
+            else:
+                self.current = self.e_closure({self.start, })
+                return False
+        except NotMatchException:
+            self.current = self.e_closure({self.start, })
+            return False
