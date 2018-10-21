@@ -60,18 +60,19 @@ Out[]: True
     
 Example:
 
-    s = "a(b)*(a|b)cc((k(b|c)*v)|zz)"   # correct
-    s = "(a|b)*a"                       # correct
-    s = "a|b*"                          # correct
-    s = "a|(b|c)*ac"                    # correct
-    m = regex_compile(s)
-    
-    "a|b)"                              # illegal
-    "a(c"                               # illegal
-    
-    m.match("ac,ak")                    # correct
-    m.match("a>,ak")                    # correct
-    m.match("ab)")                      # illegal
-    m.match("a*kk")                     # illegal
-    
+```python
+s = "a(b)*(a|b)cc((k(b|c)*v)|zz)"   # correct
+s = "(a|b)*a"                       # correct
+s = "a|b*"                          # correct
+s = "a|(b|c)*ac"                    # correct
+m = regex_compile(s)
+
+"a|b)"                              # illegal
+"a(c"                               # illegal
+
+m.match("ac,ak")                    # correct
+m.match("a>,ak")                    # correct
+m.match("ab)")                      # illegal
+m.match("a*kk")                     # illegal
+```    
 
