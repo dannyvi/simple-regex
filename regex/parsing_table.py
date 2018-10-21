@@ -5,12 +5,6 @@ from typing import Set
 import string
 import queue
 
-# grammar_literal = ('R -> S',
-#                   'S -> S*',
-#                   'S -> S|S',
-#                   'S -> SS',
-#                   'S -> (S)',
-#                   'S -> a')
 
 grammar_literal = ('R -> S',
                    'S -> S|D',
@@ -42,7 +36,6 @@ def _divide(product):
 
 grammar = [_divide(i) for i in grammar_literal]
 
-# a = "abcdefghijklmnopqrstuvwxyz"
 a = string.ascii_lowercase
 
 

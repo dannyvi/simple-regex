@@ -58,6 +58,7 @@ Out[]: True
     1. string.ascii_letters, 大小写字符
     2. string.digits，数字
     3. 除了"()|*$"以外的标点符号
+    4. 转义字符"\\("，"\\)"，"\\|"， "\\*", "\\$"
     
 Example:
 
@@ -75,5 +76,10 @@ m.match("ac,ak")                    # correct
 m.match("a>,ak")                    # correct
 m.match("ab)")                      # illegal
 m.match("a*kk")                     # illegal
+
+s = "\(\)\|\*\$")                   # correct
+m = regex_compile(s)
+m.match("()|*$")                 
+Out[]: True
 ```    
 

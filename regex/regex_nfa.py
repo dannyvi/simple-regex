@@ -1,7 +1,7 @@
 """define basis and induction rules of the nfa graph construction."""
 
 
-from .graph import State, Path, Graph, Machine, epsilon
+from regex.graph import State, Path, Graph, Machine, epsilon
 
 
 def basis(letter, names=(None, None)):
@@ -142,28 +142,5 @@ def induct_star(graph: Graph, names = (None, None)):
     paths = graph.paths + new_paths
     new_graph = Graph(paths, init, finish)
     return new_graph
-
-
-# if __name__ == "__main__":
-def build_a_machine():
-    """(a|b)*a(ab)*"""
-    import random, string
-    label = random.choice("abc"+epsilon)
-    label2 = random.choice(string.ascii_lowercase)
-    g1 = basis("a")
-    g2 = basis(label2)
-    g3 = induct_or(g1, g2)
-    g4 = induct_star(g3)
-    g5 = basis("c")
-    g6 = induct_cat(g4, g5)
-    g7 = basis(random.choice(string.ascii_lowercase))
-    g8 = basis(random.choice(string.ascii_lowercase))
-    g9 = induct_cat(g7, g8)
-    g10 = induct_star(g9)
-    g11 = induct_cat(g6, g10)
-    m = Machine(g11)
-    e = m.current
-    return m
-
 
 

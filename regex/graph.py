@@ -120,13 +120,14 @@ class Graph:
         s = 'StartArrow -> {} [label="start"];'
         digraph.append(s.format(self.start))
         for path in self.paths:
-            s = '{} -> {} [label={}];'
+            s = '{} -> {} [label="{}"];'
             digraph.append(s.format(path.begin, path.end, path.label))
         digraph.append(enclose)
         return digraph
 
     def _compile_digraph(self):
-        """write dot file, regex_compile with graphviz dot and make a png picture."""
+        """write dot file, regex_compile with graphviz dot and make a png
+        picture."""
         # dot file
         digraph = self.get_dot_content()
         filename = ''.join(random.choices(string.ascii_uppercase +
@@ -210,7 +211,7 @@ class Machine(Graph):
         s = 'StartArrow -> {} [label="start"];'
         digraph.append(s.format(self.start))
         for path in self.paths:
-            s = '{} -> {} [label={}];'
+            s = '{} -> {} [label="{}"];'
             digraph.append(s.format(path.begin, path.end, path.label))
         digraph.append(enclose)
         return digraph
