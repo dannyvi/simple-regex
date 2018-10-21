@@ -33,10 +33,11 @@
 Usage
 ------
 
-
+```python
     from compiler import regex_compile
     nfa = regex_compile("ab(c|d)*ef*g")
     nfa.show()
+```
     
 ![img](./img/sample.png)
 
