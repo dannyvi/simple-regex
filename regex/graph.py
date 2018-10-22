@@ -251,7 +251,8 @@ class Machine(Graph):
                                               if path.begin in self.current and
                                                path.label == letter]))
         except TypeError:
-            raise NotMatchException("""does not match this letter "{}".""".format(letter))
+            raise NotMatchException("""does not match this letter "{}"."""
+                                    .format(letter))
 
     def match(self, stream):
         try:
